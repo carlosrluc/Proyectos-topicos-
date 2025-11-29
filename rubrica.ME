@@ -34,6 +34,33 @@ todo lo que esta en la carpeta templates lo que usara la IA para generar conteni
 
 generator.js utiliza un mock no api realizar esto realiza la generacion automatica de archivos
 
+--PT2 esta hasta aqui
+
 para poder generar un modelo se utiliza en bash:
  node src/generator.js alumnos
+
+ tras realizar esto te saldra en github actions cada que haces push
+
+ de ahi traz generarlo tiene que poner lo siguiente en git bash:
+ 
+ 
+ git add .
+git commit -m "Add generator + server + templates"
+git push
+
+esto de aca te manda a loguearte
+te autentica para que puedas hacer el push
+esto hara que se pushee los cambios
+
+ESTE PASO CON EL GIT PUSH activo por primera vez la pipeline CI/CD
+(GIThub ACTIONS DETECTA EL CI.YML Y LO TIENE NE CUENTA PARA REALIZAR EL NUEVO PUSH EN LA RAMA MAIN)
+
+esto permite un despliegue automatico lo cual conectaremos con render (servicio cloud)
+
+desde aqui iremos a https://dashboard.render.com ára crear el servicio
+
+se realiza el webservice dentro del render usando este repo
+
+build command npm install
+start command npm start
 
