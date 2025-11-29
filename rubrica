@@ -1,0 +1,28 @@
+Ramirez Lucar Carlos Alejandro 202121042@urp.edu.pe
+Torres Ponte Viviana 202020221@urp.edu.pe
+Landeon Anthony 202011365@urp.edu.pe
+
+Título del Proyecto:
+
+Plataforma de Desarrollo Acelerado con IA para gestión de empresas de servicios de ingeniera
+
+Descripción del Proyecto:
+
+Se desarrollará una plataforma de Desarrollo Acelerado con IA para orientado a la gestión eficiente de gestión de proyectos de ingeniería
+La solución permitirá realizar el registro de proyectos de manera acelerada.
+
+La arquitectura estará compuesta por herramientas integradas:
+
+mariadb
+react
+tailwindcss
+next.js
+firebase auth
+open ai api
+
+Tópicos a desarrollar:
+
+Crear herramientas que aceleren el desarrollo usando IA
+Implementar pipeline completo de CI/CD
+Desplegar en plataforma cloud con alta disponibilidad
+Demostrar generación automática de código y test
