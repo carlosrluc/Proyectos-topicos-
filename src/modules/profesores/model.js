@@ -1,4 +1,4 @@
-export default class cursosModel {
+export default class profesoresModel {
   constructor() {
     this.data = [];
   }
