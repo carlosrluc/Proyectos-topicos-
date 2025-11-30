@@ -1,7 +1,11 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const controller = require("./profesores.controller");
+const profesoresController = require('../controllers/profesoresController');
 
-router.get("/", controller.getAllProfesores);
+router.get('/', profesoresController.index);
+router.get('/:id', profesoresController.show);
+router.post('/', profesoresController.store);
+router.put('/:id', profesoresController.update);
+router.delete('/:id', profesoresController.destroy);
 
 module.exports = router;

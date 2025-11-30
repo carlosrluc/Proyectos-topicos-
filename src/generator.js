@@ -1,99 +1,173 @@
 import fs from "fs";
 import path from "path";
-import axios from "axios";
 import dotenv from "dotenv";
-import { fileURLToPath } from "url";
+import Groq from "groq-sdk";
 
-dotenv.config();
+// Cargar .env desde la raíz del proyecto
+dotenv.config({ path: path.join(process.cwd(), ".env") });
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+if (!GROQ_API_KEY) {
+  console.error("❌ ERROR: No existe la variable GROQ_API_KEY en .env");
+  process.exit(1);
+}
 
-async function generateCode(prompt) {
+// Inicializar cliente Groq
+const groq = new Groq({ apiKey: GROQ_API_KEY });
+
+/* -----------------------------------------------------------
+   IA GENERATOR
+----------------------------------------------------------- */
+
+async function generateWithGroq(prompt) {
   try {
-    const response = await axios.post(
-      "https://api.deepseek.com/chat/completions",
-      {
-        model: "deepseek-chat",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.2
-      },
-      {
-        headers: {
-          "Authorization": `Bearer ${DEEPSEEK_API_KEY}`,
-          "Content-Type": "application/json"
-        }
-      }
-    );
+    const response = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: "Eres una IA experta generadora de código Node.js." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.3
+    });
 
-    const content =
-      response.data?.choices?.[0]?.message?.content?.trim() || null;
+    const content = response?.choices?.[0]?.message?.content?.trim();
+
+    if (!content) {
+      console.error("❌ La IA devolvió contenido vacío");
+      return null;
+    }
 
     return content;
+
   } catch (err) {
-    console.error("🔥 Error DeepSeek:", err.response?.data || err.message);
+    console.error("❌ Error IA:", err.response?.data || err.message);
     return null;
   }
 }
 
-function replaceTemplate(template, name) {
-  const Name = name.charAt(0).toUpperCase() + name.slice(1);
+/* -----------------------------------------------------------
+   CRUD GENERATOR
+----------------------------------------------------------- */
 
-  return template
-    .replace(/{{Name}}/g, Name)
-    .replace(/{{name}}/g, name.toLowerCase());
-}
 
-async function generateModule(moduleName) {
-  // RUTA CORRECTA = src/templates
-  const templatesPath = path.join(__dirname, "templates");
+async function generateFile(moduleName, fileName, prompt) {
+  console.log(`📄 Generando ${fileName}...`);
 
-  const outputDir = path.join(__dirname, "modules", moduleName);
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
+  let result = await generateWithGroq(prompt);
+
+  if (!result) {
+    console.error(`❌ No se generó contenido para: ${fileName}`);
+    return;
   }
 
-  console.log(`🚀 Generando módulo: ${moduleName}...`);
+  // 🔥 Eliminar ```javascript al inicio y ``` al final
+  result = result
+    .replace(/^```javascript\s*/i, "")  // elimina ```javascript
+    .replace(/^```\s*/i, "")            // elimina ``` solo
+    .replace(/```$/i, "");              // elimina ``` al final
 
-  const filesToGenerate = [
-    { template: "models.txt", output: "model.js" },
-    { template: "controller.txt", output: "controller.js" },
-    { template: "routes.txt", output: "routes.js" }
-  ];
+  const moduleDir = path.join("src", "modules", moduleName);
+  if (!fs.existsSync(moduleDir)) fs.mkdirSync(moduleDir, { recursive: true });
 
-  for (const file of filesToGenerate) {
-    const templatePath = path.join(templatesPath, file.template);
+  const filePath = path.join(moduleDir, fileName);
 
-    if (!fs.existsSync(templatePath)) {
-      console.error(`❌ No existe el template: ${file.template}`);
-      continue;
-    }
+  fs.writeFileSync(filePath, result.trim(), "utf8");
 
-    const templateContent = fs.readFileSync(templatePath, "utf8");
-    const replaced = replaceTemplate(templateContent, moduleName);
+  console.log(`✅ ${fileName} generado en: ${filePath}`);
+}
 
-    if (!replaced || replaced.trim().length < 2) {
-      console.error(`❌ Contenido vacío para: ${file.output}`);
-      continue;
-    }
+/* -----------------------------------------------------------
+   PROMPTS IA
+----------------------------------------------------------- */
 
-    const outputPath = path.join(outputDir, file.output);
-    fs.writeFileSync(outputPath, replaced);
+function getModelPrompt(name) {
+  return `
+Genera exclusivamente código JavaScript válido para un archivo de modelo Node.js usando clases.
+Nombre del modelo: ${name}.
+Requisitos:
+- No incluyas comentarios en ninguna parte (ni // ni /* */).
+- No incluyas explicaciones antes o después del código.
+- No uses bloques Markdown como \`\`\`.
+- Solo devuelve código JavaScript plano.
 
-    console.log(`✔ Archivo generado: ${outputPath}`);
+Debe contener:
+- Clase del modelo con atributos sugeridos.
+- Clase contenedora con métodos CRUD simulados: create, findAll, findById, update, delete.
+  `;
+}
+
+function getControllerPrompt(name) {
+  return `
+Genera exclusivamente código JavaScript válido para un controlador Express del módulo "${name}".
+Requisitos:
+- Sin comentarios de ningún tipo.
+- Sin explicaciones.
+- Sin bloques Markdown.
+- Solo código JavaScript plano.
+
+Debe contener:
+- Métodos CRUD: getAll, getById, create, update, delete.
+- Importar el modelo correspondiente.
+  `;
+}
+
+
+function getRoutesPrompt(name) {
+  return `
+Genera exclusivamente código JavaScript válido para un archivo de rutas Express del módulo "${name}".
+Requisitos:
+- No generar comentarios.
+- No generar explicaciones.
+- No usar \`\`\`.
+- Solo código JavaScript plano.
+
+Debe contener:
+- Router Express.
+- Rutas CRUD: GET /, GET /:id, POST /, PUT /:id, DELETE /:id.
+- Importar el controlador.
+  `;
+}
+
+
+/* -----------------------------------------------------------
+   MAIN
+----------------------------------------------------------- */
+
+async function main() {
+  const moduleName = process.argv[2];
+
+  if (!moduleName) {
+    console.error("❌ Uso correcto: node src/generator.js <nombreModulo>");
+    process.exit(1);
   }
 
-  console.log("🎉 Módulo generado correctamente.");
+  const nameLower = moduleName.toLowerCase();
+
+  console.log(`🚀 Generando CRUD avanzado para módulo: ${nameLower}`);
+
+  // Generar Model
+  await generateFile(
+    nameLower,
+    "model.js",
+    getModelPrompt(nameLower)
+  );
+
+  // Generar Controller
+  await generateFile(
+    nameLower,
+    "controller.js",
+    getControllerPrompt(nameLower)
+  );
+
+  // Generar Routes
+  await generateFile(
+    nameLower,
+    "routes.js",
+    getRoutesPrompt(nameLower)
+  );
+
+  console.log("🎉 CRUD generado exitosamente.\n");
 }
 
-const moduleName = process.argv[2];
-
-if (!moduleName) {
-  console.error("❌ Debes indicar el nombre del módulo. Ej:");
-  console.error("   node src/generator.js alumnos");
-  process.exit(1);
-}
-
-generateModule(moduleName);
+main();
