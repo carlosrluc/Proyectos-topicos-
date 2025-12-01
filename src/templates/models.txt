@@ -1,5 +1,0 @@
-export default class {{name}}Model {
-  constructor() {
-    this.data = [];
-  }
-}
