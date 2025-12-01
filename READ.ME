@@ -70,3 +70,21 @@ la generacion de los alumnos es la ia simulada
 el CI/CD es la pipeline ejecutada de NUEVO
 deploy automatico : actualizacion en render
 
+para entrar a la nube se utiliza https://proyectos-topicos.onrender.com/api/{name} ejemplo: https://proyectos-topicos.onrender.com/api/alumnos
+como no hay ninguna variable ni bien generado el crud , les saldra la pag vacia
+el objetivo del front es poder aparte de generar nuevos crud con node src/generator.js {name} ejemplo: node src/generator.js alumnos 
+tambien debe permitir utilizar la api en la nube de la siguiente manera
+GET https://proyectos-topicos.onrender.com/api/enfermeros
+GET https://proyectos-topicos.onrender.com/api/enfermeros/<id> (para una id especifica) ejemplo:https://proyectos-topicos.onrender.com/api/enfermeros/1
+POST https://proyectos-topicos.onrender.com/api/enfermeros
+PUT https://proyectos-topicos.onrender.com/api/enfermeros/<id>
+DELETE https://proyectos-topicos.onrender.com/api/enfermeros/<id>
+
+DESDE THUNDER CLIENT SE PUEDE PROBAR HACIENDO ESTO 
+curl -X POST https://proyectos-topicos.onrender.com/api/enfermeros \
+  -H "Content-Type: application/json" \
+  -d "{\"nombre\":\"Ana\",\"edad\":29}" (aqui poner el JSON segun lo que halla generado para models la IA)
+
+tener en cuenta que en RENDER no aparece algo despues de que lo generes con node src/generator.js {name} sino que debes subir el 
+commit de lo nuevo para que se actualice el render automaticamente(se puede hacer con los comandos git)
+
