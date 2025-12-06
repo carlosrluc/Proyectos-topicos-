@@ -1,16 +1,19 @@
-export class Enfermeros {
+export class Profesores {
   constructor(data) {
     Object.assign(this, {
       id: null,
     nombre: null,
     edad: null,
-    especialidad: null,
-    hospital: null
+    cargo: null,
+    departamento: null,
+    telefono: null,
+    correo: null,
+    fecha_nacimiento: null
     }, data);
   }
 }
 
-class EnfermerosCollection {
+class ProfesoresCollection {
   constructor() {
     this.items = [];
   }
@@ -24,7 +27,7 @@ class EnfermerosCollection {
   }
 
   create(data) {
-    const item = new Enfermeros({ id: Date.now().toString(), ...data });
+    const item = new Profesores({ id: Date.now().toString(), ...data });
     this.items.push(item);
     return item;
   }
@@ -45,4 +48,4 @@ class EnfermerosCollection {
   }
 }
 
-export default new EnfermerosCollection();
+export default new ProfesoresCollection();

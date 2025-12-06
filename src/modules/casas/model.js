@@ -1,16 +1,20 @@
-export class Enfermeros {
+export class Casas {
   constructor(data) {
     Object.assign(this, {
       id: null,
     nombre: null,
-    edad: null,
-    especialidad: null,
-    hospital: null
+    direccion: null,
+    precio: null,
+    habitaciones: null,
+    banos: null,
+    superficie: null,
+    ubicacion: null,
+    estado: null
     }, data);
   }
 }
 
-class EnfermerosCollection {
+class CasasCollection {
   constructor() {
     this.items = [];
   }
@@ -24,7 +28,7 @@ class EnfermerosCollection {
   }
 
   create(data) {
-    const item = new Enfermeros({ id: Date.now().toString(), ...data });
+    const item = new Casas({ id: Date.now().toString(), ...data });
     this.items.push(item);
     return item;
   }
@@ -45,4 +49,4 @@ class EnfermerosCollection {
   }
 }
 
-export default new EnfermerosCollection();
+export default new CasasCollection();

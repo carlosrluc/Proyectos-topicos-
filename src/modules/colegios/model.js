@@ -1,16 +1,27 @@
-export class Enfermeros {
+export class Colegios {
   constructor(data) {
     Object.assign(this, {
       id: null,
     nombre: null,
-    edad: null,
-    especialidad: null,
-    hospital: null
+    direccion: null,
+    telefono: null,
+    email: null,
+    ciudad: null,
+    estado: null,
+    municipio: null,
+    cp: null,
+    logo: null,
+    descripcion: null,
+    ubicacion: null,
+    latitud: null,
+    longitud: null,
+    created_at: null,
+    updated_at: null
     }, data);
   }
 }
 
-class EnfermerosCollection {
+class ColegiosCollection {
   constructor() {
     this.items = [];
   }
@@ -24,7 +35,7 @@ class EnfermerosCollection {
   }
 
   create(data) {
-    const item = new Enfermeros({ id: Date.now().toString(), ...data });
+    const item = new Colegios({ id: Date.now().toString(), ...data });
     this.items.push(item);
     return item;
   }
@@ -45,4 +56,4 @@ class EnfermerosCollection {
   }
 }
 
-export default new EnfermerosCollection();
+export default new ColegiosCollection();

@@ -1,19 +1,16 @@
-export class Casa {
+export class Puertos {
   constructor(data) {
     Object.assign(this, {
       id: null,
     nombre: null,
-    direccion: null,
-    precio: null,
-    descripcion: null,
-    num_habitaciones: null,
-    num_banos: null,
-    superficie: null
+    tipo: null,
+    ubicacion: null,
+    capacidad: null
     }, data);
   }
 }
 
-class CasaCollection {
+class PuertosCollection {
   constructor() {
     this.items = [];
   }
@@ -27,7 +24,7 @@ class CasaCollection {
   }
 
   create(data) {
-    const item = new Casa({ id: Date.now().toString(), ...data });
+    const item = new Puertos({ id: Date.now().toString(), ...data });
     this.items.push(item);
     return item;
   }
@@ -48,4 +45,4 @@ class CasaCollection {
   }
 }
 
-export default new CasaCollection();
+export default new PuertosCollection();
